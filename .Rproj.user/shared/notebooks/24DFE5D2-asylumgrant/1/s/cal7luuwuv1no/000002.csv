@@ -1,0 +1,2 @@
+"0","continent<-c('Africa','Asia','Europe','North America','Oceania','South America')"
+"0","perContinent<-data.frame(df3 %>% dplyr::filter(Continent.Country.of.Nationality %in% continent))"

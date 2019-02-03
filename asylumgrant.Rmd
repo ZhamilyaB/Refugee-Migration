@@ -341,3 +341,276 @@ out <- fold(rownames(df), function(i,acc) rbind(acc, do_forecast(i,df)), NULL)
 
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+output:
+ html_document:
+    fig_width: 10
+    fig_height: 7
+    toc: yes
+    number_sections : yes
+    code_folding: show
+{r setup}
+options(width=100)
+knitr::opts_chunk$set(out.width='1000px',dpi=200,message=FALSE,warning=FALSE)
+
+
+
+
+
+```{r}
+#load packages and csv file
+library(ggplot2)
+library(dplyr)
+library(gridExtra)
+library(RColorBrewer)
+library(ggthemes)
+library(reshape2)
+```
+
+
+#Motivation
+
+With the recent news this week of stengthening the U.S immigration laws, I wanted to have a look at the history/numbers related to this matter. Although this dataset is not directly related to U.S immigration, it might offer some insights about the location of people seeking asylum to the U.S.
+
+From a visualization point of view, the goal is to make, per year :
+
+* a map to show the populations movement (end-point will be the U.S.)
+* an histogram with the Total numbers of Refugees per Continent
+
+#Data preparation
+
+* convert the numbers in the dataset from characters to numeric
+* take care of special cases : `-`, `,` and other characters : `D`, `X`
+* re-arrange the dataframe for easy plotting
+
+```{r}
+rs1<-read.csv('refugee_status.csv',stringsAsFactors=F,sep=',')
+
+#rename columns
+colnames(rs1)<-c('Continent.Country.of.Nationality','Y2006','Y2007','Y2008','Y2009','Y2010','Y2011','Y2012','Y2013','Y2014','Y2015')
+
+#function to convert (and impute) the char. to num.
+convertCols<-function(x){
+	convertNum <- function(y){
+		if(grepl("-",y)==TRUE){
+			return(as.numeric(gsub("-","0",y)))
+		}
+		else if(grepl(",",y)==TRUE){
+			return(as.numeric(gsub(",","",y)))
+		}
+		else{
+			return(as.numeric(y))
+		}
+	}
+	sapply(x,convertNum)
+}
+
+df2 <- data.frame(cbind(
+  rs1 %>% dplyr::select(Continent.Country.of.Nationality), 
+  rs1 %>% 
+    dplyr::select(-Continent.Country.of.Nationality) %>% 
+    dplyr::mutate_all(funs(convertCols))))
+
+df3<-data.frame(reshape2::melt(df2,id=c('Continent.Country.of.Nationality')))
+head(df3)
+```
+
+#Preparing maps, plots
+
+##Group_by `Continent`
+
+This will be the histogram per Continent
+
+```{r}
+continent<-c('Africa','Asia','Europe','North America','Oceania','South America')
+perContinent<-data.frame(df3 %>% dplyr::filter(Continent.Country.of.Nationality %in% continent))
+```
+
+##Preparing the map
+
+```{r}
+#list all countries and filter the continent names
+countries_name<-unique(df3$Continent.Country.of.Nationality)
+countries_name<-countries_name[!countries_name %in% c(continent,'Other','Unknown','Total')]
+getGeo<-function(x,coord){
+  for(i in 1:length(x)){
+    val<-as.numeric(geocode(as.character(x[i])))[coord]
+    return(val)
+  }
+}
+
+#library(ggmap)
+countries_name<-data.frame(countries_name)
+#countries_name$long<-sapply(countries_name$countries_name,getGeo,1)
+#countries_name$lat<-sapply(countries_name$countries_name,getGeo,2)
+countries_name$long<-c(67.70995,17.87389,45.03819,47.57693,27.95339,90.4336,17.67908,95.95597,29.91889,104.991,12.35472,20.93944,18.73221,104.1954,-74.29733,21.75866,15.82766,-5.54708,-77.78117,30.8025,10.26789,39.78233,40.48967,-15.31014,-82.90008,-72.28521,-86.24191,113.9213,53.68805,43.67929,36.23841,66.92368,37.90619,127.5101,47.48177,74.7661,102.4955,24.60319,-9.429499,-10.94083,28.36989,84.12401,8.675277,69.34512,105.3188,29.87389,21.00586,-11.77989,46.19962,31.30698,80.7718,30.21764,38.99681,0.824782,32.29028,31.16558,64.58526,108.2772,48.51639,29.15486)
+countries_name$lat<-c(3.93911,-11.20269,40.0691,40.1431,53.70981,27.51416,43.91589,21.91622,-3.373056,12.56568,7.369722,6.611111,15.45417,35.86166,4.570868,-4.038333,-0.228021,7.539989,21.52176,26.82055,1.650801,15.17938,9.145,13.44318,32.16562,18.97119,15.2,-0.789275,32.42791,33.22319,30.58516,48.01957,-0.023559,40.33985,29.31166,41.20438,19.85627,56.87964,6.428055,21.00789,47.41163,28.39486,9.081999,30.37532,61.52401,-1.940278,44.01652,8.460555,5.152149,6.876992,7.873054,12.86281,34.80207,8.619543,1.373333,48.37943,41.37749,14.05832,15.55273,-19.01544)
+head(countries_name)
+```
+
+```{r}
+#install.packages("maps")
+library(maps)
+countries_map <-map_data("world")
+world_map<-ggplot() + 
+  geom_map(data = countries_map, 
+           map = countries_map,aes(x = long, y = lat, map_id = region, group = group),
+           fill = "white", color = "black", size = 0.1)
+```
+
+##Making map and histograms
+
+For each year :
+
+* merge the data per country that has the breakdown per county with the dataset having the countries geolocations
+* calculate the percentage for each country
+* prepare the map plot (aesthetic) and save it into a list
+* make the histogram plot per Continent
+
+```{r,eval=T}
+mapPlot<-list()
+histPlot<-list()
+years<-unique(df3$variable)
+length(years)
+for(i in 1:length(years)){
+	curYear<-years[i]
+	#selection and merging
+	curDf<-data.frame(merge(
+	  df3 %>% mutate(countries_name = Continent.Country.of.Nationality) %>% dplyr::filter(!(countries_name %in% c(continent,'Other','Unknown','Total')) & variable==curYear), 
+	  countries_name, by='countries_name'))
+	#percentage calculation
+	curDf<-curDf %>% mutate(tot = sum(value,na.rm=T), percentage = round(100*(value/tot),2))
+	#make map
+	mapPlot[[i]]<-world_map + 
+	geom_curve(data = filter(curDf,value>0),aes(x=long,y=lat,xend=-95.71289,yend=37.09024,size=percentage,color=percentage),alpha=.5) + 
+	theme_fivethirtyeight() + theme(
+	  plot.title=element_text(face="bold",hjust=.012,vjust=.8,colour="#3C3C3C",size=10),
+	  panel.grid.major = element_blank(),
+	  axis.text=element_blank(),axis.ticks=element_blank(),
+	  legend.position = c(.1,0.15),
+	  legend.title=element_text(size=8),
+	  legend.text=element_text(size=8),legend.key.size = unit(.4, "cm")) + 
+	  scale_color_gradientn(colours=rev(brewer.pal(10,'Spectral'))) + guides(size=F) +
+	ggtitle(paste0('Countries of origin of refugees for ',curYear))
+	
+	histPlot[[i]]<-ggplot() + 
+	  geom_bar(data=filter(perContinent,variable!=curYear),aes(x=variable,y=value,fill=Continent.Country.of.Nationality),stat='identity',alpha=.25) + 
+	  geom_bar(data=filter(perContinent,variable==curYear),aes(x=variable,y=value,fill= Continent.Country.of.Nationality),stat='identity',alpha=1) + 
+	  theme_fivethirtyeight() + 
+	  theme(
+	    legend.text=element_text(size=8),
+	    legend.key.size = unit(.4, "cm"),
+	    legend.position=,axis.text.x = element_text(size=8,angle=45)) + 
+	  scale_fill_brewer(name='',palette='Set1')
+}
+```
+
+* Countries from Asia is the major contribution
+* the large increase between starting in `2008` for countries in Asia is due to the offer of the US to take 60 000 refugees as part of the `Core Group on Bhutanese Refugees in Nepal` formed by the UNHCR [wikipedia](https://en.wikipedia.org/wiki/Bhutanese_refugees)
+* since `2008`, the number of refugees has been ~ 60000/ year
+* there is a decrease in the number of refugees from Europe since 2006
+
+#Results (breakdown per Year)
+
+```{r fig.width=12, fig.height=40, fig.align='center',eval=T}
+grid.arrange(
+  mapPlot[[1]],histPlot[[1]],
+  mapPlot[[2]],histPlot[[2]], 
+  mapPlot[[3]],histPlot[[3]],
+  mapPlot[[4]],histPlot[[4]], 
+  mapPlot[[5]],histPlot[[5]],
+  mapPlot[[6]],histPlot[[6]], 
+  mapPlot[[7]],histPlot[[7]],
+  mapPlot[[8]],histPlot[[8]], 
+  mapPlot[[9]],histPlot[[9]],
+  mapPlot[[10]],histPlot[[10]], 
+  ncol=2, nrow=10, 
+  widths=c(3, 1),heights=c(2,2,2,2,2,2,2,2,2,2))
+```
+
+#Results (all years)
+```{r}
+perCountries<-df2 %>% dplyr::filter(!( Continent.Country.of.Nationality %in% c(continent,'Other','Unknown','Total')))
+perCountries$Tot<-rowSums(perCountries[,2:11],na.rm=T) 
+perCountries <- perCountries %>% mutate(tot = sum(Tot,na.rm=T), percentage = round(100*(Tot/tot),2),countries_name=Continent.Country.of.Nationality)
+
+perCountries <- merge(perCountries, countries_name, by='countries_name')
+
+allmaps<-world_map + 
+	geom_curve(data = filter(perCountries,Tot>0),aes(x=long,y=lat,xend=-95.71289,yend=37.09024,size=percentage,color=percentage),alpha=.5) + 
+	theme_fivethirtyeight() + 
+	theme(panel.grid.major = element_blank(),
+	axis.text=element_blank(),axis.ticks=element_blank(),
+	legend.position = c(.1,0.15)) + 
+	scale_color_gradientn(colours=rev(brewer.pal(10,'Spectral'))) + guides(size=F)
+
+allyears <-ggplot() + 
+  geom_bar(data=perContinent,aes(x=variable,y=value,fill= Continent.Country.of.Nationality),stat='identity',alpha=1) + 
+  theme_fivethirtyeight() + 
+  theme(axis.text.x = element_text(size=8,angle=45),legend.text=element_text(size=8),
+        legend.key.size = unit(.4, "cm")) + scale_fill_brewer(name='',palette='Set1')
+```
+
+```{r fig.width=12, fig.height=6, fig.align='center',eval=T}
+grid.arrange(allmaps, allyears,ncol=2, nrow=1, widths=c(3, 1),heights=c(2))
+```
+
+
