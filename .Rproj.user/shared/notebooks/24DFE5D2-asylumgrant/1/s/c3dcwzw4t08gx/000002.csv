@@ -1,0 +1,3 @@
+"0","plot1 <- plot_ly(d, x = ~Country, y = ~(NumberofRefugee), color = ~year , type = ""bar"" ) %>% layout(title = ""Rufugees ( affirmative_asylum)"" , barmode = 'relative')"
+"0","plot2 <- plot_ly(d1, x = ~Country, y = ~(NumberofRefugee), color = ~year , type = ""bar"" ) %>% layout(title = ""Rufugees ( Defensive_asylum)"" , barmode = 'relative') "
+"0","plot3 <- plot_ly(d2, x = ~Country, y = ~(NumberofRefugee), color = ~year , type = ""bar"" ) %>% layout(title = ""Rufugees ( Refugee_status_asylum)"" , barmode = 'relative')"

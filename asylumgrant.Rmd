@@ -1,0 +1,327 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(readr)
+library(ggplot2)
+
+```
+```{r}
+getwd()
+
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.width = 8, fig.height = 6)
+
+library(dplyr)
+library(plotly)
+
+#system("ls ../input", intern=TRUE)
+
+
+AA  <- read.csv("affirmative_asylum.csv")
+
+AS <- read.csv("asylum_statistics.csv")
+
+DA <- read.csv("defensive_asylum.csv")
+
+RS <- read.csv("refugee_statistics.csv")
+
+Rsa <- read.csv("refugee_status.csv")
+
+names(AA) <- c("Country" , "2006","2007","2008","2009","2010", "2011", "2012", "2013","2014", "2015")
+
+names(DA) <- c("Country" , "2006","2007","2008","2009","2010", "2011", "2012", "2013","2014", "2015")
+
+names(Rsa) <- c("Country" , "2006","2007","2008","2009","2010", "2011", "2012", "2013","2014", "2015")
+
+AA1 <- AA[AA$Country == "Total",]
+AA <- AA[!AA$Country == "Total",]
+
+DA1 <- DA[DA$Country == "Total",]
+DA <- DA[!DA$Country == "Total",]
+
+Rsa1 <- Rsa[!Rsa$Country == "Total",]
+Rsa <- Rsa[!Rsa$Country == "Total",]
+
+
+```
+
+```{r, echo=FALSE}
+q <- AA[, c(1,2)]
+w <- AA[, c(1,3)]
+e <- AA[, c(1,4)]
+r <- AA[, c(1,5)]
+t <- AA[, c(1,6)]
+y <- AA[, c(1,7)]
+u <- AA[, c(1,8)]
+i <- AA[, c(1,9)]
+o <- AA[, c(1,10)]
+p <- AA[, c(1,11)]
+k <- c("Country", "NumberofRefugee", "year" )
+
+q$year <- 2006
+names(q) <- k
+w$year <- 2007
+names(w) <- k
+e$year <- 2008
+names(e) <- k
+r$year <- 2009
+names(r) <- k
+t$year <- 2010
+names(t) <- k
+y$year <- 2011
+names(y) <- k
+u$year <- 2012
+names(u) <- k
+i$year <- 2013
+names(i) <- k
+o$year <- 2014
+names(o) <- k
+p$year <- 2015
+names(p) <- k
+
+a <- rbind(q,w,e,r,t,y,u,i,o,p)
+
+s <- as.data.frame(a)
+
+s$year <- as.factor(s$year)
+
+s <- s[!s$NumberofRefugee == "D" & !s$NumberofRefugee == "X" & !s$NumberofRefugee == "-" & !s$NumberofRefugee == "", ]
+
+s$NumberofRefugee <- as.numeric(gsub(",", "" , s$NumberofRefugee))
+
+d <- s
+
+
+
+
+
+q <- DA[, c(1,2)]
+w <- DA[, c(1,3)]
+e <- DA[, c(1,4)]
+r <- DA[, c(1,5)]
+t <- DA[, c(1,6)]
+y <- DA[, c(1,7)]
+u <- DA[, c(1,8)]
+i <- DA[, c(1,9)]
+o <- DA[, c(1,10)]
+p <- DA[, c(1,11)]
+k <- c("Country", "NumberofRefugee", "year" )
+q$year <- 2006
+names(q) <- k
+w$year <- 2007
+names(w) <- k
+e$year <- 2008
+names(e) <- k
+r$year <- 2009
+names(r) <- k
+t$year <- 2010
+names(t) <- k
+y$year <- 2011
+names(y) <- k
+u$year <- 2012
+names(u) <- k
+i$year <- 2013
+names(i) <- k
+o$year <- 2014
+names(o) <- k
+p$year <- 2015
+names(p) <- k
+a <- rbind(q,w,e,r,t,y,u,i,o,p)
+s <- as.data.frame(a)
+s$year <- as.factor(s$year)
+s <- s[!s$NumberofRefugee == "D" & !s$NumberofRefugee == "X" & !s$NumberofRefugee == "-" & !s$NumberofRefugee == "", ]
+s$NumberofRefugee <- as.numeric(gsub(",", "" , s$NumberofRefugee))
+
+
+d1 <- s
+
+
+
+
+q <- Rsa[, c(1,2)]
+w <- Rsa[, c(1,3)]
+e <- Rsa[, c(1,4)]
+r <- Rsa[, c(1,5)]
+t <- Rsa[, c(1,6)]
+y <- Rsa[, c(1,7)]
+u <- Rsa[, c(1,8)]
+i <- Rsa[, c(1,9)]
+o <- Rsa[, c(1,10)]
+p <- Rsa[, c(1,11)]
+k <- c("Country", "NumberofRefugee", "year" )
+q$year <- 2006
+names(q) <- k
+w$year <- 2007
+names(w) <- k
+e$year <- 2008
+names(e) <- k
+r$year <- 2009
+names(r) <- k
+t$year <- 2010
+names(t) <- k
+y$year <- 2011
+names(y) <- k
+u$year <- 2012
+names(u) <- k
+i$year <- 2013
+names(i) <- k
+o$year <- 2014
+names(o) <- k
+p$year <- 2015
+names(p) <- k
+a <- rbind(q,w,e,r,t,y,u,i,o,p)
+s <- as.data.frame(a)
+s$year <- as.factor(s$year)
+s <- s[!s$NumberofRefugee == "D" & !s$NumberofRefugee == "X" & !s$NumberofRefugee == "-" & !s$NumberofRefugee == "", ]
+s$NumberofRefugee <- as.numeric(gsub(",", "" , s$NumberofRefugee))
+
+
+d2 <- s
+
+
+```
+
+
+## {.tabset}
+```{r}
+
+plot1 <- plot_ly(d, x = ~Country, y = ~(NumberofRefugee), color = ~year , type = "bar" ) %>% layout(title = "Rufugees ( affirmative_asylum)" , barmode = 'relative')
+
+
+plot2 <- plot_ly(d1, x = ~Country, y = ~(NumberofRefugee), color = ~year , type = "bar" ) %>% layout(title = "Rufugees ( Defensive_asylum)" , barmode = 'relative') 
+
+plot3 <- plot_ly(d2, x = ~Country, y = ~(NumberofRefugee), color = ~year , type = "bar" ) %>% layout(title = "Rufugees ( Refugee_status_asylum)" , barmode = 'relative')
+
+
+```
+
+### Affirmative_asylum_Refugee_count
+```{r}
+plot1
+```
+
+### Defensive_asylum_Refugee_count
+```{r}
+plot2
+```
+
+### Refugee_status_asylum_count
+```{r}
+plot3
+```
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+library(forecast)
+library(lambda.tools)
+library(futile.logger)
+
+
+do_forecast <- function(country, df, h=2, plot=FALSE) {
+  flog.info("[%s] start", country)
+  xs <- as.numeric(colnames(df))
+  xs <- c(xs, max(xs) + (1:h))
+  ys <- as.numeric(df[country,])
+
+  fc <- forecast(ys, h=h)
+  if (plot) plot(fc)
+
+  id <- sprintf("%s.%s", country, tail(xs,h))
+  data.frame(Id=id, Prediction=as.numeric(fc$mean))
+}
+
+df <- read.csv('training.csv', row.names=1)
+colnames(df) <- sub('X','', colnames(df), fixed=TRUE)
+out <- fold(rownames(df), function(i,acc) rbind(acc, do_forecast(i,df)), NULL)
+
+# write.csv(out, 'submission.csv', row.names=FALSE, quote=FALSE)
+
+```
+
