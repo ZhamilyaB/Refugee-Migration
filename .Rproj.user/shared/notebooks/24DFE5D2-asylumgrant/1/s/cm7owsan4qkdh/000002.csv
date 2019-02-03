@@ -1,0 +1,4 @@
+"0","## world's Refugees count {.tabset}"
+"0","plot1 <- ggplot(d, aes(year, NumberofRefugee, fill = NumberofRefugee ))+ geom_bar(stat = ""identity"")+ggtitle(""No. of Refugees yearly(Affirmative_asylum"")+scale_fill_gradient(low = ""yellow"" , high = ""red"")"
+"0","plot2 <- ggplot(d1, aes(year, NumberofRefugee, fill = NumberofRefugee ))+ geom_bar(stat = ""identity"")+ggtitle(""No. of Refugees yearly(Defensive_asylum)"")+scale_fill_gradient(low = ""yellow"" , high = ""green"")"
+"0","plot3 <- ggplot(d2, aes(year, NumberofRefugee, fill = NumberofRefugee ))+ geom_bar(stat = ""identity"")+ggtitle(""No. of Refugees yearly(Refugee_status"")+scale_fill_gradient(low = ""yellow"" , high = ""blue"")"

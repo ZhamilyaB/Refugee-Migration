@@ -1,0 +1,6 @@
+"0","America <- d2[d2$Country %in% c(""North America"",""South America""),]"
+"0","NorthA <- d2[d2$Country %in% c(""North America""),]"
+"0","SouthA <- d2[d2$Country %in% c(""South America""),]"
+"0","plot4 <- ggplot(America, aes(year, NumberofRefugee, color = year ))+geom_line()+geom_point()+ggtitle(""Refugees count in America"")+theme(legend.position = ""bottom"")+scale_y_continuous(breaks = seq(0, 5000, 500))"
+"0","plot5 <- ggplot(SouthA, aes(year, NumberofRefugee, color = year ))+geom_line()+geom_point()+ggtitle(""Refugees count in South America"")+theme(legend.position = ""bottom"")+scale_y_continuous(breaks = seq(0, 500, 50))"
+"0","plot6 <- ggplot(NorthA, aes(year, NumberofRefugee, color = year ))+geom_line()+geom_point()+ggtitle(""Refugees count in North America"")+theme(legend.position = ""bottom"")+scale_y_continuous(breaks = seq(0, 5000, 500))"

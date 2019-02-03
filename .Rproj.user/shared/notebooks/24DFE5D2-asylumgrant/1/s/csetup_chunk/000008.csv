@@ -1,7 +1,6 @@
 "0","knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.width = 8, fig.height = 6)"
 "0","library(dplyr)"
 "0","library(plotly)"
-"0","#system(""ls ../input"", intern=TRUE)"
 "0","AA  <- read.csv(""affirmative_asylum.csv"")"
 "0","AS <- read.csv(""asylum_statistics.csv"")"
 "0","DA <- read.csv(""defensive_asylum.csv"")"

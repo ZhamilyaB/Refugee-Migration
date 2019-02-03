@@ -6,12 +6,9 @@ output: html_notebook
 ```{r}
 library(readr)
 library(ggplot2)
-
+#getwd()
 ```
-```{r}
-getwd()
 
-```
 
 
 ```{r setup, include=FALSE}
@@ -19,8 +16,6 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.width = 8, fig.height =
 
 library(dplyr)
 library(plotly)
-
-#system("ls ../input", intern=TRUE)
 
 
 AA  <- read.csv("affirmative_asylum.csv")
@@ -97,10 +92,6 @@ s$NumberofRefugee <- as.numeric(gsub(",", "" , s$NumberofRefugee))
 
 d <- s
 
-
-
-
-
 q <- DA[, c(1,2)]
 w <- DA[, c(1,3)]
 e <- DA[, c(1,4)]
@@ -141,9 +132,6 @@ s$NumberofRefugee <- as.numeric(gsub(",", "" , s$NumberofRefugee))
 
 d1 <- s
 
-
-
-
 q <- Rsa[, c(1,2)]
 w <- Rsa[, c(1,3)]
 e <- Rsa[, c(1,4)]
@@ -183,8 +171,6 @@ s$NumberofRefugee <- as.numeric(gsub(",", "" , s$NumberofRefugee))
 
 
 d2 <- s
-
-
 ```
 
 
@@ -215,38 +201,68 @@ plot2
 ```{r}
 plot3
 ```
+
+
+
+
+
+
+```{r}
+
+## world's Refugees count {.tabset}
+plot1 <- ggplot(d, aes(year, NumberofRefugee, fill = NumberofRefugee ))+ geom_bar(stat = "identity")+ggtitle("No. of Refugees yearly(Affirmative_asylum")+scale_fill_gradient(low = "yellow" , high = "red")
+
+plot2 <- ggplot(d1, aes(year, NumberofRefugee, fill = NumberofRefugee ))+ geom_bar(stat = "identity")+ggtitle("No. of Refugees yearly(Defensive_asylum)")+scale_fill_gradient(low = "yellow" , high = "green")
+
+plot3 <- ggplot(d2, aes(year, NumberofRefugee, fill = NumberofRefugee ))+ geom_bar(stat = "identity")+ggtitle("No. of Refugees yearly(Refugee_status")+scale_fill_gradient(low = "yellow" , high = "blue")
+
+
+```
+
+### Affirmative_asylum_Refugee_count
+```{r}
+plot1
+```
+
+### Defensive_asylum_Refugee_count
+```{r}
+plot2
+```
+
+### Refugee_status_asylum_count
+```{r}
+plot3
+```
+
+## Refugees Count in America{.tabset}
+```{r}
+America <- d2[d2$Country %in% c("North America","South America"),]
+NorthA <- d2[d2$Country %in% c("North America"),]
+SouthA <- d2[d2$Country %in% c("South America"),]
+
+plot4 <- ggplot(America, aes(year, NumberofRefugee, color = year ))+geom_line()+geom_point()+ggtitle("Refugees count in America")+theme(legend.position = "bottom")+scale_y_continuous(breaks = seq(0, 5000, 500))
+
+plot5 <- ggplot(SouthA, aes(year, NumberofRefugee, color = year ))+geom_line()+geom_point()+ggtitle("Refugees count in South America")+theme(legend.position = "bottom")+scale_y_continuous(breaks = seq(0, 500, 50))
+
+plot6 <- ggplot(NorthA, aes(year, NumberofRefugee, color = year ))+geom_line()+geom_point()+ggtitle("Refugees count in North America")+theme(legend.position = "bottom")+scale_y_continuous(breaks = seq(0, 5000, 500))
+
+```
+
+### America 
+```{r}
+plot4
 ```
 
 
+### South America
+```{r}
+plot5
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### North America
+```{r}
+plot6
+```
 
 
 
